@@ -1,86 +1,16 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
-use ExtUtils::MakeMaker::Config;
+use ExtUtils::F77;
+use Config;
+use PDL::Core::Dev;
 use version;
 use Text::ParseWords qw(shellwords);
 
-# This mess sorts out the Fortran availability
-# Modified from Makefile.PL from Slatec
-# Depends on ExtUtils::F77
-
-our ($f2cbased, $g2cbased);
-
-my $donot = 0;
-my $msg = ""; 
-my $forcebuild = 0;
-my $f77;
-my @minuitfiles;
-
-if (defined $PDL::Config{WITH_MINUIT} && $PDL::Config{WITH_MINUIT}==0) {
-  $msg = "Will skip build of PDL::Minuit on this system\n";
-  goto skip;
-}
-
-if (defined $PDL::Config{WITH_MINUIT} && $PDL::Config{WITH_MINUIT}==1) {
-  print "Will try and build PDL::Minuit on this system\n";
-  $forcebuild = 1;
-}
-
-if (exists $PDL::Config{F77CONF} && -f $PDL::Config{F77CONF}) {
-  print "loading F77 configuration from $PDL::Config{F77CONF}...\n";
-  eval { require $PDL::Config{F77CONF} };
-  if ($@ ne "") {
-    $msg = "F77CONF file not loaded: $@\nOught not build PDL::Minuit\n" ;
-    goto skip unless $forcebuild;
-  }
-  $f77 = 'F77Conf';
-} else {
-  eval { require ExtUtils::F77; ExtUtils::F77->import; };  # Might want "ExtUtils::F77->import(qw(generic f2c))"
-  if ($@ ne "") {
-    $msg = "ExtUtils::F77 module not found. Ought not build PDL::Minuit";
-    goto skip unless $forcebuild;
-  } else {
-    $f77 = 'ExtUtils::F77';
-    if ($ExtUtils::F77::VERSION < 1.03 ) {
-      $msg = "Need a version of ExtUtils::F77 >= 1.03. Ought not build PDL::Minuit\n" ;
-      goto skip unless $forcebuild;
-    }
-  }  # end if ($@ ne "")
-} # if (exists $PDL::Config{F77CONF}...
-
-if (!$f77->testcompiler) {
-  $msg = "No f77 compiler found. Ought to skip PDL::Minuit on this system";
-  $PDL::Config{WITH_MINUIT} = 0;
-} else {
-  $PDL::Config{WITH_MINUIT} = 1;
-}
-
-skip:
-
-if ($msg ne "" && !$forcebuild) {
-  write_dummy_make( $msg );
-  $PDL::Config{WITH_MINUIT} = 0;
-  $donot = 1;
-} else {
-  $PDL::Config{WITH_MINUIT} = 1;
-}
-
-return if $donot;
-
+my $f77 = 'ExtUtils::F77';
+my @minuitfiles = ("futils", "minuit", "intracfalse");
 my @pack = (["minuit.pd", qw(Minuit PDL::Minuit)]);
-
-if (defined($PDL::Config{MINUIT_LIB})){
-    # If libraries are specified, just need to build futils
-    @minuitfiles = ("futils");
-}
-else{
-    # Otherwise, we need to build the Minuit library as well
-    @minuitfiles = ("futils", "minuit", "intracfalse");
-}
-   
-
-my %hash = pdlpp_stdargs_int(@pack);
+my %hash = pdlpp_stdargs(@pack);
 
 $hash{OBJECT} .= join ' ', '', 'FCN$(OBJ_EXT)', map "minuitlib/${_}\$(OBJ_EXT)", @minuitfiles;
 
@@ -110,8 +40,8 @@ $hash{clean}{FILES} .= join '', map {" minuitlib/$_\$(OBJ_EXT) "} @minuitfiles;
 
 # Handle multiple compilers
 
-$f2cbased = ($f77->runtime =~ /-lf2c/);
-$g2cbased = ($f77->runtime =~ /-lg2c/) unless $f2cbased;
+my $f2cbased = ($f77->runtime =~ /-lf2c/);
+my $g2cbased = ($f77->runtime =~ /-lg2c/) unless $f2cbased;
 
 $hash{DEFINE} .= " -DPDL_USCORE=" . ($f77->trail_ ? "_" : "");
 
@@ -119,7 +49,7 @@ undef &MY::postamble; # suppress warning
 *MY::postamble = sub {
         my $mycompiler     = $f77->compiler();
         my $mycflags       = $f77->cflags();
-	my $orig = pdlpp_postamble_int(@pack);
+	my $orig = pdlpp_postamble(@pack);
 	my $hack_64bit = ($Config{archname}=~m/amd64|i686|x86_64/ ?" -fPIC " : "");
 	$orig =~ s/:\s*minuit\.pd/: minuit.pd/;
 	$orig .= "FFLAGS = $hack_64bit $mycflags \$(OPTIMIZE)\n";
@@ -139,6 +69,26 @@ if ($Config{osname} =~ /darwin/ && version->parse($Config{osvers}) >=version->pa
 }
 
 WriteMakefile(
- %hash,
- %items
+  %hash,
+  %items,
+  'ABSTRACT' => 'Minuit 1 optimization routines for PDL',
+  'LICENSE' => 'perl',
+  'CONFIGURE_REQUIRES' =>  { "PDL" => '2.093', "ExtUtils::F77" => '1.26' },
+  'PREREQ_PM' => {
+    'PDL' => '2.093',
+  },
+  TEST_REQUIRES => { "Test::More" => '0.88' },
+  META_MERGE => {
+    "meta-spec" => { version => 2 },
+    resources => {
+      homepage => 'http://pdl.perl.org/',
+      repository  => {
+        url => 'git://github.com/PDLPorters/PDL-Minuit.git',
+        type => 'git',
+        web => 'https://github.com/PDLPorters/PDL-Minuit',
+      },
+      bugtracker => {web=>'https://github.com/PDLPorters/PDL-Minuit/issues'},
+    },
+    x_IRC => 'irc://irc.perl.org/#pdl',
+  },
 );

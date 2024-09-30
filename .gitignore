@@ -1,0 +1,22 @@
+Minuit.c
+Minuit.pm
+Minuit.xs
+minuitlib/libminuit.a
+
+pp-*.c
+*.o
+*.obj
+*.so
+*.dylib
+*.bundle
+
+# Perl build files
+
+_eumm
+pm_to_blib
+blib
+*.bs
+Makefile
+Makefile.aperl
+MYMETA.yml
+MYMETA.json

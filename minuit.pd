@@ -2,6 +2,9 @@ use strict;
 use warnings;
 pp_bless('PDL::Minuit');
 
+our $VERSION = '0.001';
+pp_setversion($VERSION);
+
 pp_add_exported('','mn_init mn_def_pars mn_excm mn_pout mn_stat mn_err mn_contour mn_emat');
 
 pp_addhdr('
@@ -53,7 +56,7 @@ and migrad minimization algorithms (see Minuit manual for more details).
 =cut
 EOD
 
-pp_addpm('
+pp_addpm(<<'EOF');
 use strict;
 use warnings;
 
@@ -63,7 +66,7 @@ sub mn_init{
   my $fun_ref = shift;
 
   $mn_options = { Log => undef,
-		  Title => \'Minuit Fit\',
+		  Title => 'Minuit Fit',
 		  N => undef,
                   Unit => undef,
                   Function => $fun_ref,
@@ -86,7 +89,7 @@ sub mn_init{
            
   if (defined (my $logfile = $mn_options->{Log})){ 
     if (-e $logfile) { unlink $logfile; }   
-    mn_abre($mn_options->{Unit},$logfile,\'new\');
+    mn_abre($mn_options->{Unit},$logfile,'new');
   }
 
   mninit(5,$mn_options->{Unit},$mn_options->{Unit});
@@ -97,7 +100,7 @@ sub mn_init{
   }
 
 }
-');
+EOF
 
 pp_def('mninit',
         Pars => 'a(); b(); c();',

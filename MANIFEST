@@ -1,0 +1,10 @@
+Changes
+FCN.c
+FCN.h
+Makefile.PL
+MANIFEST
+minuit.pd
+minuitlib/futils.f
+minuitlib/intracfalse.f
+minuitlib/minuit.f
+t/minuit.t

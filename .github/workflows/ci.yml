@@ -19,7 +19,6 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
     if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
-    needs: notify
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +40,8 @@ jobs:
         with:
           target-setup-perl: true
           perl-version: ${{ matrix.perl-version }}
+      - name: gfortran
+        uses: PDLPorters/devops/github-actions/install-dep-gfortran@master
       - name: Install PDL dependencies
         uses: PDLPorters/devops/github-actions/install-dep-pdl-dep@master
       - name: 'ci-dist: target-all'

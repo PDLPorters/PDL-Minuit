@@ -1,4 +1,5 @@
 - tests now use Test::PDL
+- fix problem identified in https://stackoverflow.com/questions/79778649/problem-with-mn-def-pars-function-in-pdlminuit
 
 0.001 2024-09-30
 - split out from PDL 2.093

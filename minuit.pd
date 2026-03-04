@@ -187,7 +187,7 @@ loop(n) %{
   char *name = $COMP(names)[n];
   PDL_Indx largo=strlen(name);
   PDL_LongLong a = n + 1;
-  MNPARM(&a,name,$P(pars),$P(steps),$P(lo_bounds),$P(up_bounds),$P(ia),largo);
+  MNPARM(&a,name,&$pars(),&$steps(),&$lo_bounds(),&$up_bounds(),&$ia(),largo);
 %}
 EOF
 );

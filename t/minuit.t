@@ -39,10 +39,33 @@ my $emat_test = pdl [[0.34545455, -0.054545455], [-0.054545455,  0.012121212]];
 is_pdl $emat, $emat_test or diag $emat;
 
 my @got = mn_pout(1);
-is_pdl $got[0], pdl(3) or diag "@got";
+is_pdl $got[0], pdl('3');
+is_pdl $got[1], pdl('0.587753');
+is_pdl $got[2], pdl('0');
+is_pdl $got[3], pdl('0');
+is_pdl $got[4], pdl('1');
+is $got[5], 'intercept ';
 
-mn_err(1);
-mn_stat();
+my @got2 = mn_pout(2);
+is_pdl $got2[0], pdl('4');
+is_pdl $got2[1], pdl('0.110096');
+is_pdl $got2[2], pdl('0');
+is_pdl $got2[3], pdl('0');
+is_pdl $got2[4], pdl('2');
+is $got2[5], 'slope     ';
+
+my @r1 = mn_err(1);
+is_pdl $r1[0], pdl('0.587753');
+is_pdl $r1[1], pdl('-0.587753');
+is_pdl $r1[2], pdl('0.587753');
+is_pdl $r1[3], pdl('0.842927');
+my @r2 = mn_stat();
+is_pdl $r2[0], pdl('0');
+is_pdl $r2[1], pdl('0');
+is_pdl $r2[2], pdl('1');
+is_pdl $r2[3], longlong('2');
+is_pdl $r2[4], longlong('2');
+is_pdl $r2[5], longlong('3');
 
 done_testing;
 

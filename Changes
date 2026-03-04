@@ -1,2 +1,4 @@
+- tests now use Test::PDL
+
 0.001 2024-09-30
 - split out from PDL 2.093

@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use PDL::LiteF;
 use Test::More;
+use Test::PDL;
 use PDL::Minuit;
 use File::Temp qw( tempfile tempdir );
 require File::Spec;
@@ -35,20 +36,20 @@ ok !mn_excm('minos');
 
 my $emat = mn_emat();
 my $emat_test = pdl [[0.34545455, -0.054545455], [-0.054545455,  0.012121212]];
-ok(all(approx $emat, $emat_test)) or diag $emat;
+is_pdl $emat, $emat_test or diag $emat;
 
 my @got = mn_pout(1);
-ok(approx $got[0], pdl 3) or diag "@got";
+is_pdl $got[0], pdl(3) or diag "@got";
 
 mn_err(1);
 mn_stat();
 
 done_testing;
 
-sub chi2{
+sub chi2 {
     my ($npar,$grad,$fval,$xval,$iflag) = @_;
     if($iflag == 4){
         $fval = (($y - $xval->slice(0) - $xval->slice(1)*$x)**2)->sumover;
     }
-    return ($fval,$grad);
+    ($fval,$grad);
 }

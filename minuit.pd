@@ -2,7 +2,7 @@ use strict;
 use warnings;
 pp_bless('PDL::Minuit');
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 pp_setversion($VERSION);
 
 pp_add_exported('','mn_init mn_def_pars mn_excm mn_pout mn_stat mn_err mn_contour mn_emat');

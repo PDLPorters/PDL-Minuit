@@ -353,37 +353,29 @@ pp_addpm('
     my $par_num_1 = shift;
     my $par_num_2 = shift;
     my $npt = shift;
-
     my $fun_ref = $mn_options->{Function};
-
     my $n = $mn_options->{N};
     if (($par_num_1 < 1) || ($par_num_1 > $n)) { barf "Parameter numbers range from 1 to $n "; }
     if (($par_num_2 < 1) || ($par_num_2 > $n)) { barf "Parameter numbers range from 1 to $n "; }
     if ($npt < 5) { barf "Have to specify at least 5 points in routine contour "; }
-
-    my $xpt = zeroes($npt);
-    my $ypt = zeroes($npt);
-    my $nfound = pdl->new;
-
-    mncont($par_num_1,$par_num_2,$npt,$xpt,$ypt,$nfound,$fun_ref,$n);
-
+    my ($xpt, $ypt, $nfound) = mncont($par_num_1,$par_num_2,$npt,$fun_ref,$n);
     if (defined (my $logfile = $mn_options->{Log})){
       mn_cierra($mn_options->{Unit});
     }
-
-    return ($xpt,$ypt,$nfound);
+    ($xpt,$ypt,$nfound);
   }
 ');
 
 pp_def('mncont',
-        Pars => 'ia(); ib(); ic(); double [o] a(n); double [o] b(n); [o] id();',
+        Pars => 'ia(); ib(); double [o] a(n); double [o] b(n); [o] id();',
         GenericTypes => ['LL'],
-        OtherPars => 'SV* function; IV numelem;',
+        OtherPars => 'IV npt => n; SV* function; IV numelem;',
         Doc => undef,
         Code => 'double zero = 0.0;
         mnfunname = $COMP(function);
 	ene = $COMP(numelem);
-        MNCONT(FCN,$P(ia),$P(ib),$P(ic),$P(a),$P(b),$P(id),&zero);
+        PDL_LongLong ic = $SIZE(n);
+        MNCONT(FCN,$P(ia),$P(ib),&ic,$P(a),$P(b),$P(id),&zero);
        ');
 
 pp_addpm(<<'EOD'); # the rest of the FUNCTIONS documentation part

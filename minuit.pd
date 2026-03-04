@@ -197,40 +197,33 @@ sub mn_excm{
 
   my $fun_ref = $mn_options->{Function};
 
-  my ($arglis,$narg);
-  if ( @_ ) { $arglis = shift; $narg = nelem($arglis);}
-  else { $arglis = pdl(0); $narg = 0; }
-
+  my ($arglis);
+  if ( @_ ) { $arglis = shift; }
+  else { $arglis = empty(); }
   if ( @_ ) { barf "Usage : mn_excm($command, [$arglis]) \n"; }
-
   if (defined (my $logfile = $mn_options->{Log})){
     mn_abre($mn_options->{Unit},$logfile,\'old\');
   }
-
-  my $iflag = pdl(0);
-
-
-  $iflag = mnexcm($arglis, $narg, $command, $fun_ref,$mn_options->{N});
+  my $iflag = mnexcm($arglis, $command, $fun_ref,$mn_options->{N});
   warn "Problem executing command \'$command\' " unless ($iflag == 0);
-
   if (defined (my $logfile = $mn_options->{Log})){
     mn_cierra($mn_options->{Unit});
   }
-
-  return $iflag;
+  $iflag;
 }
 ');
 
 pp_def('mnexcm',
-	Pars =>'double a(n); ia(); [o] ib();',
+	Pars =>'double a(n); [o] ib();',
 	GenericTypes => ['LL'],
 	OtherPars => 'char* str; SV* function; IV numelem;',
 	Doc => undef,
 	Code => 'double zero = 0.0;
+        PDL_LongLong ia = $SIZE(n);
         PDL_Indx largo=strlen($COMP(str));
         ene = $COMP(numelem);
 	mnfunname = $COMP(function);
-        MNEXCM(FCN,$COMP(str),$P(a),$P(ia),$P(ib),&zero,largo);
+        MNEXCM(FCN,$COMP(str),$P(a),&ia,$P(ib),&zero,largo);
        ');
 
 pp_addpm('
